@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\DaftarSiswa;
+use DB;
 
 class StudentController extends Controller
 {
@@ -18,6 +19,10 @@ class StudentController extends Controller
         return $student;
     }
 
+    public function getUsers(Request $request){
+        $users = DB::table('users')->get();
+        return $users;
+    }
     /**
      * Show the form for creating a new resource.
      *

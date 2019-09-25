@@ -15,7 +15,7 @@ class CreateDaftarSiswasTable extends Migration
     {
         Schema::create('daftar_siswas', function (Blueprint $table) {
             $table->increments('student_id')->autoIncrement();
-            $table->string('nis');
+            $table->string('nis',30)->unique();
             $table->string('student_name');
             $table->string('birthplace');
             $table->integer('birthdate');
