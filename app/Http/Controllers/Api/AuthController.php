@@ -45,4 +45,21 @@ class AuthController extends Controller
         return $user;
         // return response()->json(['success' => $user], $this->successStatus); 
     } 
+
+    public function destroy($id)
+    {
+        // $request->user()->token()->revoke();
+        // return response()->json([
+        //     'message' => 'Successfully logged out'
+        // ]);
+        $data=User::find($id);
+        $data->delete();
+        $response = [
+            'success' => true,
+            'data' => $data,
+            'message' => 'User deleted successfully.'
+        ];
+
+        return response()->json($response, 200);
+    }
 }
