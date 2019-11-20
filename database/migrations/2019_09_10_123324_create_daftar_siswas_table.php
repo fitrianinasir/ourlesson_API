@@ -24,6 +24,7 @@ class CreateDaftarSiswasTable extends Migration
             $table->string('school');
             $table->string('gender');
             $table->string('email', 30)->unique();
+            $table->string('image');
             $table->bigInteger('phone_number');
             $table->timestamps();
         });

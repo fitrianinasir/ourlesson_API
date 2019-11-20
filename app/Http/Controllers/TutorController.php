@@ -3,23 +3,20 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\DaftarTutor;
 use Illuminate\Support\Facades\Validator;
-use App\PembagianKelas;
 
-class KelasController extends Controller
+class TutorController extends Controller
 {
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
     public function index()
     {
-        $classes = PembagianKelas::all();
-
-        // $response = [
-        //     'success' => true,
-        //     'data' => $classes,
-        //     'msg'=>'class accepted',
-        //     'message' => 'Classes retrieved successfully.'
-        // ];
-
-        return response()->json($classes, 200);
+        $tutors = DaftarTutor::all();
+        return response()->json($tutors,200);
     }
 
     /**
@@ -29,7 +26,7 @@ class KelasController extends Controller
      */
     public function create()
     {
-        //
+        
     }
 
     /**
@@ -40,34 +37,28 @@ class KelasController extends Controller
      */
     public function store(Request $request)
     {
-        
         $input = $request->all();
-
         $validator = Validator::make($input, [
-            'date' => 'required',
-            'time' => 'required'
+            'tutor_name' => 'required',
+            'tutor_subject' => 'required',
+            'background' => 'required',
+            'phone_number' => 'required',
+            'email' => 'required'
         ]);
 
-        if ($validator->fails()) {
+        if($validator->fails()){
             $response = [
                 'success' => false,
-                'data' => 'Validation Error.',
-                
+                'data' => 'Validation error',
                 'message' => $validator->errors()
             ];
             return response()->json($response, 404);
         }
 
-        $class = PembagianKelas::create($input);
-        $data = $class->toArray();
+        $tutor = DaftarTutor::create($input);
 
-        $response = [
-            'success' => true,
-            'data' => $data,
-            'message' => 'Class stored successfully.'
-        ];
+        return [$tutor];
 
-        return response()->json($response, 200);
     }
 
     /**
@@ -78,23 +69,21 @@ class KelasController extends Controller
      */
     public function show($id)
     {
-        $class = PembagianKelas::find($id);
-        $data = $class->toArray();
+        $tutor = DaftarTutor::find($id);
+        $data = $tutor->toArray();
 
-        if (is_null($class)) {
+        if(is_null($tutor)){
             $response = [
                 'success' => false,
                 'data' => 'Empty',
-                'message' => 'Class not found.'
+                'message' => 'Tutor not found'
             ];
-            return response()->json($response, 404);
+        return response()->json($response, 404);
         }
-
-
         $response = [
             'success' => true,
             'data' => $data,
-            'message' => 'Class retrieved successfully.'
+            'message' => 'Tutor retrieved successfully.'
         ];
 
         return response()->json([$response], 200);
@@ -120,21 +109,20 @@ class KelasController extends Controller
      */
     public function update(Request $request, $id)
     {
-       $classes=PembagianKelas::find($id);
-       $classes->date=$request->date;
-       $classes->tutor=$request->tutor;
-       $classes->time=$request->time;
-       $classes->subject=$request->subject;
-       $classes->class=$request->class;
-       $classes->save();
-       
-       $response = [
-        'success' => true,
-        'data' => $classes,
-        'message' => 'Class updated successfully.'
-    ];
-
-    return response()->json([$response], 200);
+        $tutor=DaftarTutor::find($id);
+        $tutor->tutor_name=$request->tutor_name;
+        $tutor->tutor_subject=$request->tutor_subject;
+        $tutor->email=$request->email;
+        $tutor->phone_number=$request->phone_number;
+        $tutor->save();
+        
+        $response = [
+         'success' => true,
+         'data' => $tutor,
+         'message' => 'Tutor updated successfully.'
+     ];
+ 
+     return response()->json([$response], 200);
     }
 
     /**
@@ -145,14 +133,13 @@ class KelasController extends Controller
      */
     public function destroy($id)
     {
-        
-        $data=PembagianKelas::find($id);
+        $data=DaftarTutor::find($id);
         $data->delete();
 
         $response = [
             'success' => true,
             'data' => $data,
-            'message' => 'Class deleted successfully.'
+            'message' => 'Tutor deleted successfully.'
         ];
 
         return response()->json([$response], 200);

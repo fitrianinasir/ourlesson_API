@@ -17,6 +17,7 @@ class CreatePembagianKelasTable extends Migration
             $table->bigIncrements('class_id');
             $table->string('date');
             $table->string('time');
+            $table->string('tutor');
             $table->string('subject');
             $table->string('class');
             $table->timestamps();

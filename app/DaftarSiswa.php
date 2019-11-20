@@ -16,6 +16,7 @@ class DaftarSiswa extends Model
         'school', 
         'gender', 
         'email', 
-        'phone_number'
+        'phone_number',
+        
     ];
 }

@@ -53,7 +53,8 @@ class StudentController extends Controller
         $student->email = $request->input('email');
         $student->phone_number = $request->input('phone_number');
         $student->save();
-        return "Data Berhasil Masuk";
+        
+        // return "Data Berhasil Masuk";
         
     }
 

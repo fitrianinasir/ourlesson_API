@@ -10,6 +10,7 @@ class PembagianKelas extends Model
     protected $fillable = [
         'date',
         'time',
+        'tutor',
         'subject',
         'class',
     ];
