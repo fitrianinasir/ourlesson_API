@@ -3,6 +3,7 @@
 use App\Http\Controllers\TutorController;
 use Illuminate\Http\Request;
 
+
 // USER AUTHENTICATION
 Route::post('/user-login', 'Api\AuthController@login');
 
@@ -10,7 +11,8 @@ Route::middleware('auth:api')->group( function () {
   Route::get('/student-details', 'Api\AuthController@details');
   Route::get('/tutors', 'TutorController@index');
   Route::post('/logout', 'Api\AuthController@logout');
-  Route::get('classes','KelasController@index');
+  Route::get('/classes','KelasController@index');
+  Route::get('/handbooks-student', 'HandbooksController@index');
   
 });
 
@@ -32,7 +34,7 @@ Route::middleware('auth:admin')->group(function(){
   Route::get('/daftar-tutor', 'TutorController@index');
   Route::get('/tutor/{id}', 'TutorController@show');
   Route::post('/create-tutor', 'TutorController@store');
-  Route::post('/tutor/{id}', 'TutorController@update');
+  Route::put('/tutor/{id}', 'TutorController@update');
   Route::delete('/remove-tutor/{id}', 'TutorController@destroy');
 
   // SCHEDULE CONTROLLER 
@@ -42,6 +44,13 @@ Route::middleware('auth:admin')->group(function(){
   Route::put('class/{id}','KelasController@update');
   Route::delete('class/{id}','KelasController@destroy');
   
+  // HANDBOOKS ROUTE
+  Route::get('/handbooks', 'HandbooksController@index');
+  Route::get('/handbook/{id}', 'HandbooksController@show');
+  Route::post('/handbook', 'HandbooksController@store');
+  Route::put('/handbook/{id}', 'HandbooksController@update');
+  Route::delete('/handbook/{id}', 'HandbooksController@destroy');
+
   // LOGOUT ADMIN
   Route::post('/admin-logout', 'Api\AdminAuthController@logout');
 });

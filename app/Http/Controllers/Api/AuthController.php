@@ -7,6 +7,9 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Lcobucci\JWT\Parser;
+use Illuminate\Support\Facades\Storage;
+// use League\Flysystem\File;
+use Symfony\Component\HttpFoundation\File\File;
 class AuthController extends Controller
 {
     /**
@@ -16,7 +19,7 @@ class AuthController extends Controller
      */
     public $successStatus = 200;
     public function register(Request $request){
-      
+    
      
       // return response()->json("data berhasil masuk", compact('path'));
       $validatedData = $request->validate([
@@ -32,31 +35,49 @@ class AuthController extends Controller
         'phone_number'=> 'required',
         'year'=>'required',
         'student_class'=>'required',
+        'image'=>'',
         'password'=>'required',
-        'image'=>'required'
       ]);
 
-      if(!$request->hasFile('image')) {
-        return response()->json(['upload_file_not_found'], 400);
+      if ($request->hasFile('image') && $request->file('image')->isValid()) {
+        $original_name= $request->file('image')->getClientOriginalName(); 
+        $request->file('image')->storeAs('public/uploads', $original_name );
+        $validatedData['password'] = bcrypt($request->password);
+        $user = User::create($validatedData);
+        $user->image = $original_name;
+        $user->save();
+        $accessToken = $user->createToken('authToken')->accessToken;
+        $response = ['user'=>[$user], 'access_token'=>$accessToken];
+        return response([$response]);
+      } else{
+        return response()->json(array('status'=>'error','message'=>'failed to upload image'));
       }
-      $file = $request->file('image');
-      if(!$file->isValid()) {
-          return response()->json(['invalid_file_upload'], 400);
-      }
-      $path = public_path();
-      $file->move($path, $file->getClientOriginalName());
-      $file_name = $file->getClientOriginalName();
 
-      $validatedData['password'] = bcrypt($request->password);
+    // if($request->hasFile('image')){
 
-      $user = User::create($validatedData);
-      $user->image = $file_name;
-      $user->save();
+    //     $uniqueid=uniqid();
+    //     $original_name= $request->file('image')->getClientOriginalName(); 
+    //     $size = $request->file('image')->getSize();
+    //     $extension=$request->file('image')->getClientOriginalExtension();
 
-      $accessToken = $user->createToken('authToken')->accessToken;
-      $response = ['user'=>[$user], 'access_token'=>$accessToken];
-      return response([$response], 200);
+    //     $name=$uniqueid.'.'.$extension;
+    //     $path=$request->file('image')->storeAs('public/uploads',$name);
+    //     if($path){
+    //       $validatedData['password'] = bcrypt($request->password);
+
+    //       $user = User::create($validatedData);
+    //       $user->image = $original_name;
+    //       $user->save();
+    
+    //       $accessToken = $user->createToken('authToken')->accessToken;
+    //       $response = ['user'=>[$user], 'access_token'=>$accessToken];
+    //       return response([$response], 200);
+    //       // return response()->json(array('status'=>'success','message'=>'Image successfully uploaded','image'=>'/storage/uploads/'.$name));
+    //     }else{
+    //         return response()->json(array('status'=>'error','message'=>'failed to upload image'));
+    //     }
     }
+    
 
     public function login(Request $request){
       $user = User::where('nis', $request->nis)->first();
@@ -95,12 +116,63 @@ class AuthController extends Controller
       $file_path = public_path(). "/uploads/".$file_name;
       return response()->download($file_path);
     }
+
     public function update(Request $request, $id)
     {
-      $student = User::findOrFail($id);
-      $student->update($request->all());
+      $user = User::findOrFail($id);
+      $input = $request->all();
+      if($request->hasFile('image')){
+        if($request->file('image')->isValid()){
+          $removeImg = str_replace('/storage', '', $user->image);
+          Storage::delete('/public/uploads/'.$removeImg);
+          $image_name = $request->file('image')->getClientOriginalName();
+          $request->file('image')->storeAs('public/uploads', $image_name );
+          $input['image'] = $image_name;
+        }
+      }
+        $user->update($input);
+        $user->nis = $request->nis;
+        $user->student_name = $request->student_name;
+        $user->birthplace = $request->birthplace;
+        $user->birthdate = $request->birthdate;
+        $user->address = $request->address;
+        $user->religion = $request->religion;
+        $user->gender = $request->gender;
+        $user->student_class = $request->student_class;
+        $user->schools = $request->schools;
+        $user->year = $request->year;
+        $user->email = $request->email;
+        $user->phone_number = $request->phone_number;
+        $user->password = bcrypt($request->password);
+        $user->save();
+        return ['success' => 'Update successfully', 'user' => $user];
+      
 
-      return [$student];
+
+    //   $student = User::findOrFail($id);
+    //   // $student->update($request->all());
+    //   if ($request->hasfile('image')){
+    //     $file = $request->file('image');
+    //     $extension = $file->getClientOriginalExtension();
+    //     $filename = md5(time()).'.'.$extension;
+    //     $file->move('public/uploads',$filename);
+    //     $student->image=$filename;
+    //     $student->nis = $request->nis;
+    //     $student->student_name = $request->student_name;
+    //     $student->birthplace = $request->birthplace;
+    //     $student->birthdate = $request->birthdate;
+    //     $student->address = $request->address;
+    //     $student->religion = $request->religion;
+    //     $student->gender = $request->gender;
+    //     $student->student_class = $request->student_class;
+    //     $student->schools = $request->schools;
+    //     $student->year = $request->year;
+    //     $student->email = $request->email;
+    //     $student->phone_number = $request->phone_number;
+    //     $student->password = $request->password;
+    //     $student->save();
+    //     return ['success' => 'Update successfully', 'user' => $student];
+    // }
     }
 
     public function logout(Request $request){
@@ -118,7 +190,9 @@ class AuthController extends Controller
         // return response()->json([
         //     'message' => 'Successfully logged out'
         // ]);
-        $data=User::find($id);
+        $data = User::find($id);
+        $removeImg = str_replace('/storage', '', $data->image);
+        Storage::delete('/public/uploads/'.$removeImg);
         $data->delete();
         return 'Data deleted successfully';
     }

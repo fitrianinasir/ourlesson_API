@@ -112,6 +112,7 @@ class TutorController extends Controller
         $tutor=DaftarTutor::find($id);
         $tutor->tutor_name=$request->tutor_name;
         $tutor->tutor_subject=$request->tutor_subject;
+        $tutor->background = $request->background;
         $tutor->email=$request->email;
         $tutor->phone_number=$request->phone_number;
         $tutor->save();
